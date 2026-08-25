@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nyanko Planner — Promemoria stage giornalieri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14171F;
+    --surface:#1E2230;
+    --surface-2:#262B3D;
+    --border:#333952;
+    --text-primary:#F1EEE4;
+    --text-secondary:#A8ADC4;
+    --text-muted:#6C7290;
+    --gold:#F2B705;
+    --gold-dark:#7A5E03;
+    --mint:#57D9A3;
+    --mint-dark:#0F4A38;
+    --coral:#E8604C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text-primary);
+    font-family:'Inter',sans-serif;
+    padding:32px 16px 64px;
+    display:flex;
+    justify-content:center;
+  }
+  .wrap{width:100%;max-width:560px;}
+  h1{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:800;
+    font-size:26px;
+    margin:0 0 2px;
+    letter-spacing:0.2px;
+  }
+  .sub{color:var(--text-secondary);font-size:14px;margin:0 0 24px;}
+  .header-row{display:flex;align-items:center;gap:14px;margin-bottom:4px;}
+  .paw{
+    width:44px;height:44px;border-radius:50%;
+    background:var(--surface-2);
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;flex-shrink:0;
+  }
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:18px 20px;
+    margin-bottom:18px;
+  }
+  .card h2{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    margin:0 0 12px;
+    color:var(--text-secondary);
+    text-transform:uppercase;
+    letter-spacing:0.6px;
+  }
+  .settings-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+  input[type=time],input[type=text]{
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text-primary);
+    border-radius:10px;
+    padding:8px 10px;
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+  }
+  button{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:var(--surface-2);
+    color:var(--text-primary);
+    padding:8px 14px;
+    cursor:pointer;
+  }
+  button:hover{border-color:var(--text-muted);}
+  .btn-gold{
+    background:var(--gold);
+    color:#2B2100;
+    border:1px solid var(--gold);
+  }
+  .btn-gold:hover{filter:brightness(1.05);}
+  .btn-gold.off{
+    background:var(--surface-2);
+    color:var(--text-secondary);
+    border:1px solid var(--border);
+  }
+  .status-dot{
+    width:9px;height:9px;border-radius:50%;
+    display:inline-block;margin-right:6px;
+    background:var(--text-muted);
+  }
+  .status-dot.on{background:var(--mint);}
+  .status-text{font-size:13px;color:var(--text-secondary);}
+  .tabs{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:6px;
+    margin-bottom:16px;
+  }
+  .tab{
+    text-align:center;
+    padding:9px 4px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:var(--surface);
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+    color:var(--text-secondary);
+  }
+  .tab.active{
+    background:var(--gold);
+    color:#2B2100;
+    border-color:var(--gold);
+  }
+  .tab.is-today:not(.active){border-color:var(--gold);color:var(--gold);}
+  .day-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .day-title{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:19px;
+  }
+  .dial{
+    width:46px;height:46px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;
+    color:var(--gold);
+    background:conic-gradient(var(--gold) 0deg, var(--surface-2) 0deg);
+    flex-shrink:0;
+  }
+  .dial-inner{
+    width:36px;height:36px;border-radius:50%;
+    background:var(--surface);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .item{
+    padding:10px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .item:last-of-type{border-bottom:none;}
+  .item-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .check{
+    width:22px;height:22px;
+    border-radius:50%;
+    border:2px solid var(--border);
+    flex-shrink:0;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;
+    color:transparent;
+  }
+  .check.done{
+    background:var(--mint);
+    border-color:var(--mint);
+    color:#08281E;
+  }
+  .item-text{flex:1;font-size:14px;}
+  .item.done .item-text{color:var(--text-muted);text-decoration:line-through;}
+  .del,.edit-btn{
+    background:none;border:none;color:var(--text-muted);
+    font-size:13px;cursor:pointer;padding:4px 6px;
+  }
+  .del:hover{color:var(--coral);}
+  .edit-btn:hover{color:var(--gold);}
+  .time-line{
+    margin:6px 0 0 32px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .time-pill{
+    font-size:11px;
+    font-weight:600;
+    padding:3px 9px;
+    border-radius:20px;
+    background:var(--surface-2);
+    color:var(--text-secondary);
+    border:1px solid var(--border);
+  }
+  .time-pill.active-now{
+    background:var(--mint-dark);
+    color:var(--mint);
+    border-color:var(--mint);
+  }
+  .time-pill.no-time{
+    color:var(--text-muted);
+    font-weight:500;
+    font-style:italic;
+    border-style:dashed;
+  }
+  .edit-time-row{
+    margin:8px 0 0 32px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .edit-time-row label{font-size:11px;color:var(--text-muted);}
+  .add-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .add-row input[type=text]{flex:1;min-width:160px;}
+  .add-time-row{display:flex;gap:8px;margin-top:8px;align-items:center;}
+  .add-time-row label{font-size:12px;color:var(--text-muted);}
+  .note{
+    font-size:12px;
+    color:var(--text-muted);
+    line-height:1.5;
+    margin-top:2px;
+  }
+  .toast{
+    position:fixed;
+    bottom:20px;left:50%;transform:translateX(-50%);
+    background:var(--surface-2);
+    border:1px solid var(--gold);
+    color:var(--text-primary);
+    padding:10px 18px;
+    border-radius:10px;
+    font-size:13px;
+    opacity:0;
+    transition:opacity 0.25s;
+    pointer-events:none;
+  }
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header-row">
+    <div class="paw">🐾</div>
+    <div>
+      <h1>Nyanko Planner</h1>
+      <p class="sub" style="margin:0;">Promemoria giornaliero per gli stage di Battle Cats</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Promemoria</h2>
+    <div class="settings-row">
+      <input type="time" id="reminderTime" value="09:00" />
+      <button class="btn-gold off" id="toggleNotif">Attiva notifiche</button>
+      <button id="testNotif">Prova</button>
+      <span class="status-text"><span class="status-dot" id="statusDot"></span><span id="statusText">notifiche disattivate</span></span>
+    </div>
+    <p class="note" id="permNote"></p>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="card">
+    <div class="day-head">
+      <div>
+        <div class="day-title" id="dayTitle">Lunedì</div>
+        <div class="note" id="dayCount">0/0 completati</div>
+      </div>
+      <div class="dial" id="dial"><div class="dial-inner" id="dialInner">0%</div></div>
+    </div>
+
+    <div id="itemsList"></div>
+
+    <div class="add-row">
+      <input type="text" id="newItem" placeholder="Aggiungi uno stage per questo giorno" />
+      <button class="btn-gold" id="addItemBtn">Aggiungi</button>
+    </div>
+    <div class="add-time-row">
+      <label>Orario (opzionale):</label>
+      <input type="time" id="newStart" />
+      <span class="note" style="margin:0;">–</span>
+      <input type="time" id="newEnd" />
+    </div>
+  </div>
+
+  <p class="note">Lista di partenza generica basata sulla rotazione tipica (XP, Catfruit, Cat Ticket ecc). Modificala liberamente. Puoi impostare un orario di inizio/fine per ogni stage guardando il calendario eventi in gioco: quando l'orario corrente rientra nella fascia, la voce si evidenzia come "attivo ora". Non gestisce fasce che attraversano la mezzanotte.</p>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DAY_KEYS = ['sun','mon','tue','wed','thu','fri','sat'];
+const DAY_LABELS = {mon:'Lunedì',tue:'Martedì',wed:'Mercoledì',thu:'Giovedì',fri:'Venerdì',sat:'Sabato',sun:'Domenica'};
+const DAY_SHORT = {mon:'Lun',tue:'Mar',wed:'Mer',thu:'Gio',fri:'Ven',sat:'Sab',sun:'Dom'};
+const TAB_ORDER = ['mon','tue','wed','thu','fri','sat','sun'];
+
+const DEFAULT_SCHEDULE = {
+  mon:[{id:'mon-1',text:'Stage XP giornaliero (Guerrilla)',start:null,end:null},{id:'mon-2',text:'Growing Green (Catfruit)',start:null,end:null},{id:'mon-3',text:'Missioni Catnip del giorno',start:null,end:null}],
+  tue:[
+    {id:'tue-1',text:"Tuesday Stage (giornaliero) ★ 2–4",start:null,end:null},
+    {id:'tue-2',text:"Jinfore Volcano ★ 8–11",start:'01:00',end:'05:00'},
+    {id:'tue-3',text:"Strait of Wings ★ 3–7",start:'05:00',end:'07:00'},
+    {id:'tue-4',text:"Island of Ash ★ 3–7",start:'07:00',end:'09:00'},
+    {id:'tue-5',text:"Cavern of Comets ★ 3–7",start:'07:00',end:'09:00'},
+    {id:'tue-6',text:"XP Stage ★ 2–6",start:'08:00',end:'09:00'},
+    {id:'tue-7',text:"Tues. Blitz Stage ★ 5",start:'08:00',end:'09:00'},
+    {id:'tue-8',text:"Cat Ticket Chance! ★ 2",start:'11:00',end:'12:00'},
+    {id:'tue-9',text:"XP Stage ★ 2–6",start:'11:00',end:'14:00'},
+    {id:'tue-10',text:"Arcane Confluence ★ 5–6",start:'11:00',end:'13:00'},
+    {id:'tue-11',text:"Hidden Forest of Gapra ★ 5–10",start:'12:00',end:'16:00'},
+    {id:'tue-12',text:"Tues. Blitz Stage ★ 5",start:'12:00',end:'13:00'},
+    {id:'tue-13',text:"Treasure Festival (Future)",start:'12:00',end:'13:00'},
+    {id:'tue-14',text:"Merciless XP! ★ 10",start:'13:00',end:'14:00'},
+    {id:'tue-15',text:"XP Megablitz! ★ 8",start:'16:00',end:'17:00'},
+    {id:'tue-16',text:"Treasure Festival (Cosmos)",start:'17:00',end:'18:00'},
+    {id:'tue-17',text:"Servant of Darkness ★ 5–6",start:'17:00',end:'19:00'},
+    {id:'tue-18',text:"Ashvini Desert ★ 6–11",start:'18:00',end:'22:00'},
+    {id:'tue-19',text:"XP Megablitz! ★ 8",start:'19:00',end:'22:00'},
+    {id:'tue-20',text:"XP Stage ★ 2–6",start:'19:00',end:'20:00'},
+    {id:'tue-21',text:"Tues. Blitz Stage ★ 5",start:'19:00',end:'20:00'},
+    {id:'tue-22',text:"Island of Hidden Treasure ★ 8–9",start:'19:00',end:'21:00'},
+    {id:'tue-23',text:"Siege of Hippoe! ★ 5",start:'20:00',end:'21:00'},
+    {id:'tue-24',text:"Treasure Festival (Empire)",start:'21:00',end:'22:00'},
+    {id:'tue-25',text:"Demon's Park ★ 5–6",start:'22:00',end:'23:59'},
+    {id:'tue-26',text:"Cat Ticket Chance! ★ 2",start:'23:00',end:'23:59'}
+  ],
+  wed:[{id:'wed-1',text:'Growing Red (Catfruit)',start:null,end:null},{id:'wed-2',text:'Stage Behemoth Stones',start:null,end:null},{id:'wed-3',text:'Missioni Catnip del giorno',start:null,end:null}],
+  thu:[{id:'thu-1',text:'Growing Blue (Catfruit)',start:null,end:null},{id:'thu-2',text:'Stage XP giornaliero (Guerrilla)',start:null,end:null},{id:'thu-3',text:'Missioni Catnip del giorno',start:null,end:null}],
+  fri:[{id:'fri-1',text:'Growing Yellow (Catfruit)',start:null,end:null},{id:'fri-2',text:'Stage Cat Ticket',start:null,end:null},{id:'fri-3',text:'Missioni Catnip del giorno',start:null,end:null}],
+  sat:[{id:'sat-1',text:'Weekend XP Stage',start:null,end:null},{id:'sat-2',text:'Catfruit Buffet (se disponibile)',start:'08:00',end:'10:00'},{id:'sat-3',text:'Missioni Catnip del giorno',start:null,end:null}],
+  sun:[{id:'sun-1',text:'Weekend XP Stage',start:null,end:null},{id:'sun-2',text:'Catfruit Buffet (se disponibile)',start:'08:00',end:'10:00'},{id:'sun-3',text:'Controlla eventi speciali/collab attivi',start:null,end:null}]
+};
+
+let schedule = null;
+let settings = {reminderTime:'09:00', notifEnabled:false};
+let progress = {date:null, completedIds:[], lastNotified:null};
+let activeDay = DAY_KEYS[new Date().getDay()];
+let editingId = null;
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function nowMinutes(){
+  const d = new Date();
+  return d.getHours()*60+d.getMinutes();
+}
+function toMinutes(hhmm){
+  const p = hhmm.split(':');
+  return parseInt(p[0],10)*60+parseInt(p[1],10);
+}
+function isActiveNow(item){
+  if(!item.start || !item.end) return false;
+  const now = nowMinutes();
+  const s = toMinutes(item.start);
+  const e = toMinutes(item.end);
+  if(s<=e) return now>=s && now<e;
+  return now>=s || now<e;
+}
+
+async function loadAll(){
+  try{
+    const r = await window.storage.get('nyanko-schedule-v3');
+    schedule = r ? JSON.parse(r.value) : JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
+  }catch(e){
+    schedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
+  }
+  try{
+    const r = await window.storage.get('nyanko-settings');
+    if(r) settings = JSON.parse(r.value);
+  }catch(e){}
+  try{
+    const r = await window.storage.get('nyanko-progress');
+    if(r) progress = JSON.parse(r.value);
+  }catch(e){}
+
+  if(progress.date !== todayStr()){
+    progress = {date:todayStr(), completedIds:[], lastNotified:progress.lastNotified||null};
+    await saveProgress();
+  }
+
+  document.getElementById('reminderTime').value = settings.reminderTime;
+  updateNotifButton();
+  buildTabs();
+  renderDay();
+}
+
+async function saveSchedule(){
+  try{ await window.storage.set('nyanko-schedule-v3', JSON.stringify(schedule)); }catch(e){}
+}
+async function saveSettings(){
+  try{ await window.storage.set('nyanko-settings', JSON.stringify(settings)); }catch(e){}
+}
+async function saveProgress(){
+  try{ await window.storage.set('nyanko-progress', JSON.stringify(progress)); }catch(e){}
+}
+
+function buildTabs(){
+  const wrap = document.getElementById('tabs');
+  wrap.innerHTML = '';
+  const todayKey = DAY_KEYS[new Date().getDay()];
+  TAB_ORDER.forEach(key=>{
+    const el = document.createElement('div');
+    el.className = 'tab' + (key===activeDay ? ' active' : '') + (key===todayKey ? ' is-today' : '');
+    el.textContent = DAY_SHORT[key];
+    el.onclick = ()=>{ activeDay = key; editingId = null; buildTabs(); renderDay(); };
+    wrap.appendChild(el);
+  });
+}
+
+function fmtPill(item){
+  if(!item.start || !item.end) return {text:'nessun orario impostato', cls:'no-time'};
+  const active = isActiveNow(item);
+  return {text:item.start+'–'+item.end+(active ? ' · attivo ora':''), cls: active ? 'active-now' : ''};
+}
+
+function renderDay(){
+  document.getElementById('dayTitle').textContent = DAY_LABELS[activeDay];
+  const list = document.getElementById('itemsList');
+  list.innerHTML = '';
+  const items = schedule[activeDay] || [];
+  let doneCount = 0;
+  items.forEach(item=>{
+    const done = progress.completedIds.includes(item.id);
+    if(done) doneCount++;
+    const wrapDiv = document.createElement('div');
+    wrapDiv.className = 'item' + (done ? ' done' : '');
+
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    const check = document.createElement('div');
+    check.className = 'check' + (done ? ' done' : '');
+    check.innerHTML = done ? '✓' : '';
+    check.onclick = ()=> toggleItem(item.id);
+    const text = document.createElement('div');
+    text.className = 'item-text';
+    text.textContent = item.text;
+    const editBtn = document.createElement('button');
+    editBtn.className = 'edit-btn';
+    editBtn.innerHTML = '⏱';
+    editBtn.title = 'Modifica orario';
+    editBtn.onclick = ()=>{ editingId = (editingId===item.id) ? null : item.id; renderDay(); };
+    const del = document.createElement('button');
+    del.className = 'del';
+    del.innerHTML = '✕';
+    del.onclick = ()=> deleteItem(item.id);
+    row.appendChild(check);
+    row.appendChild(text);
+    row.appendChild(editBtn);
+    row.appendChild(del);
+    wrapDiv.appendChild(row);
+
+    if(editingId === item.id){
+      const editRow = document.createElement('div');
+      editRow.className = 'edit-time-row';
+      editRow.innerHTML =
+        '<label>Da</label><input type="time" id="editStart" value="'+(item.start||'')+'">' +
+        '<label>a</label><input type="time" id="editEnd" value="'+(item.end||'')+'">';
+      const saveBtn = document.createElement('button');
+      saveBtn.className = 'btn-gold';
+      saveBtn.textContent = 'Salva';
+      saveBtn.style.fontSize = '12px';
+      saveBtn.onclick = ()=>{
+        const s = document.getElementById('editStart').value;
+        const e = document.getElementById('editEnd').value;
+        item.start = s || null;
+        item.end = e || null;
+        editingId = null;
+        saveSchedule();
+        renderDay();
+      };
+      const clearBtn = document.createElement('button');
+      clearBtn.textContent = 'Rimuovi orario';
+      clearBtn.style.fontSize = '12px';
+      clearBtn.onclick = ()=>{
+        item.start = null; item.end = null;
+        editingId = null;
+        saveSchedule();
+        renderDay();
+      };
+      editRow.appendChild(saveBtn);
+      editRow.appendChild(clearBtn);
+      wrapDiv.appendChild(editRow);
+    } else {
+      const pillInfo = fmtPill(item);
+      const timeLine = document.createElement('div');
+      timeLine.className = 'time-line';
+      const pill = document.createElement('span');
+      pill.className = 'time-pill ' + pillInfo.cls;
+      pill.textContent = pillInfo.text;
+      timeLine.appendChild(pill);
+      wrapDiv.appendChild(timeLine);
+    }
+
+    list.appendChild(wrapDiv);
+  });
+  const total = items.length;
+  document.getElementById('dayCount').textContent = doneCount + '/' + total + ' completati';
+  const pct = total ? Math.round((doneCount/total)*100) : 0;
+  document.getElementById('dial').style.background = 'conic-gradient(#F2B705 ' + (pct*3.6) + 'deg, #262B3D 0deg)';
+  document.getElementById('dialInner').textContent = pct + '%';
+}
+
+function toggleItem(id){
+  const idx = progress.completedIds.indexOf(id);
+  if(idx===-1) progress.completedIds.push(id);
+  else progress.completedIds.splice(idx,1);
+  saveProgress();
+  renderDay();
+}
+
+function deleteItem(id){
+  schedule[activeDay] = schedule[activeDay].filter(i=>i.id!==id);
+  const idx = progress.completedIds.indexOf(id);
+  if(idx!==-1) progress.completedIds.splice(idx,1);
+  saveSchedule();
+  saveProgress();
+  renderDay();
+}
+
+document.getElementById('addItemBtn').onclick = ()=>{
+  const input = document.getElementById('newItem');
+  const startEl = document.getElementById('newStart');
+  const endEl = document.getElementById('newEnd');
+  const val = input.value.trim();
+  if(!val) return;
+  const id = activeDay + '-custom-' + Date.now();
+  schedule[activeDay] = schedule[activeDay] || [];
+  schedule[activeDay].push({id, text:val, start:startEl.value||null, end:endEl.value||null});
+  input.value = '';
+  startEl.value = '';
+  endEl.value = '';
+  saveSchedule();
+  renderDay();
+};
+document.getElementById('newItem').addEventListener('keydown', e=>{
+  if(e.key==='Enter') document.getElementById('addItemBtn').click();
+});
+
+function updateNotifButton(){
+  const btn = document.getElementById('toggleNotif');
+  const dot = document.getElementById('statusDot');
+  const txt = document.getElementById('statusText');
+  if(settings.notifEnabled){
+    btn.textContent = 'Disattiva notifiche';
+    btn.classList.remove('off');
+    dot.classList.add('on');
+    txt.textContent = 'notifiche attive alle ' + settings.reminderTime;
+  }else{
+    btn.textContent = 'Attiva notifiche';
+    btn.classList.add('off');
+    dot.classList.remove('on');
+    txt.textContent = 'notifiche disattivate';
+  }
+  const noteEl = document.getElementById('permNote');
+  if(settings.notifEnabled && typeof Notification !== 'undefined' && Notification.permission === 'denied'){
+    noteEl.textContent = 'Il browser ha bloccato le notifiche per questa pagina: abilitale dalle impostazioni del sito per riceverle.';
+  }else{
+    noteEl.textContent = 'Le notifiche funzionano solo mentre questa pagina resta aperta nel browser (niente notifiche in background).';
+  }
+}
+
+document.getElementById('toggleNotif').onclick = async ()=>{
+  if(!settings.notifEnabled){
+    if(typeof Notification === 'undefined'){
+      showToast('Il tuo browser non supporta le notifiche.');
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    if(perm !== 'granted'){
+      showToast('Permesso notifiche non concesso.');
+      updateNotifButton();
+      return;
+    }
+    settings.notifEnabled = true;
+  }else{
+    settings.notifEnabled = false;
+  }
+  saveSettings();
+  updateNotifButton();
+};
+
+document.getElementById('reminderTime').addEventListener('change', e=>{
+  settings.reminderTime = e.target.value;
+  saveSettings();
+  updateNotifButton();
+});
+
+document.getElementById('testNotif').onclick = async ()=>{
+  if(typeof Notification === 'undefined'){
+    showToast('Notifiche non supportate su questo browser.');
+    return;
+  }
+  if(Notification.permission !== 'granted'){
+    const perm = await Notification.requestPermission();
+    if(perm !== 'granted'){ showToast('Permesso non concesso.'); return; }
+  }
+  fireNotification();
+  showToast('Notifica di prova inviata.');
+};
+
+function fireNotification(){
+  const items = schedule[DAY_KEYS[new Date().getDay()]] || [];
+  const todoCount = items.filter(i=>!progress.completedIds.includes(i.id)).length;
+  const activeNames = items.filter(i=>isActiveNow(i) && !progress.completedIds.includes(i.id)).map(i=>i.text);
+  let body;
+  if(activeNames.length>0){
+    body = 'Attivi ora: ' + activeNames.join(', ');
+  }else if(todoCount>0){
+    body = todoCount + ' stage ancora da fare oggi (' + DAY_LABELS[DAY_KEYS[new Date().getDay()]] + ')';
+  }else{
+    body = 'Hai già completato tutto per oggi!';
+  }
+  try{
+    new Notification('Nyanko Planner', {body});
+  }catch(e){}
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 2500);
+}
+
+function checkReminder(){
+  if(!settings.notifEnabled) return;
+  if(typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  const current = hh+':'+mm;
+  if(current === settings.reminderTime && progress.lastNotified !== todayStr()){
+    fireNotification();
+    progress.lastNotified = todayStr();
+    saveProgress();
+  }
+}
+
+loadAll();
+setInterval(checkReminder, 20000);
+setInterval(()=>{ renderDay(); }, 30000);
+setInterval(()=>{
+  if(progress.date !== todayStr()){
+    progress = {date:todayStr(), completedIds:[], lastNotified:progress.lastNotified||null};
+    saveProgress();
+    activeDay = DAY_KEYS[new Date().getDay()];
+    buildTabs();
+    renderDay();
+  }
+}, 60000);
+</script>
+</body>
+</html>
