@@ -12,19 +12,11 @@ Tracker e promemoria per gli stage giornalieri di [The Battle Cats](https://batt
 
 ## Come si usa
 
-Apri `index.html` nel browser (o pubblicalo con GitHub Pages, vedi sotto). Aggiungi/rimuovi stage con il pulsante "Aggiungi", imposta gli orari con l'icona ⏱ su ogni voce.
+La pagina è pubblicata con GitHub Pages: apri il link della repo, oppure apri direttamente `index.html` nel browser. Aggiungi/rimuovi stage con il pulsante "Aggiungi", imposta gli orari con l'icona ⏱ su ogni voce, oppure cerca uno stage specifico con la barra di ricerca in alto (mostra in quale giorno e orario ricorre).
 
 ## Aggiornare gli orari
 
-I dati degli stage non sono ricavabili da un'API pubblica (l'endpoint ufficiale richiede una richiesta firmata con una chiave interna al client del gioco). Il modo piu' pratico e' controllare il calendario eventi in gioco e aggiornare gli orari a mano nell'app, oppure incollare lo screenshot/testo del calendario in chat con Claude e farselo aggiornare.
-
-## Pubblicare con GitHub Pages (opzionale)
-
-Dopo aver pushato la repo:
-
-1. Vai su **Settings > Pages** nella repo su GitHub
-2. In "Source" scegli il branch `main` e cartella `/ (root)`
-3. Salva: la pagina sara' raggiungibile su `https://<tuo-utente>.github.io/nyanko-planner/`
+I dati degli stage non sono ricavabili da un'API pubblica (l'endpoint ufficiale richiede una richiesta firmata con una chiave interna al client del gioco). Il modo più pratico è controllare il calendario eventi in gioco e aggiornare gli orari a mano nell'app, oppure incollare lo screenshot/testo del calendario in chat con Claude e farselo aggiornare.
 
 ## Licenza
 
